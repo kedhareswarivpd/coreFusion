@@ -17,6 +17,8 @@ from app.models.employee_document import EmployeeDocument  # noqa: F401
 
 # Business
 from app.models.client import Client  # noqa: F401
+from app.models.client_file import ClientFile  # noqa: F401
+from app.models.client_report import ClientReport  # noqa: F401
 from app.models.project import Project  # noqa: F401
 from app.models.task import Task  # noqa: F401
 from app.models.invoice import Invoice  # noqa: F401
@@ -61,12 +63,13 @@ from app.models.newsletter import NewsletterSubscriber  # noqa: F401
 from app.models.seo import SeoMetadata  # noqa: F401
 from app.models.page_content import PageContent  # noqa: F401
 from app.models.analytics import PageView  # noqa: F401
+from app.models.report import Report  # noqa: F401
 
 __all__ = [
     "Base", "project_members", "role_permissions",
     "User", "Role", "Permission",
     "Department", "Employee", "Attendance", "Leave", "Timesheet", "Payslip", "EmployeeDocument",
-    "Client", "Project", "Task", "Invoice", "Payment",
+    "Client", "ClientFile", "ClientReport", "Project", "Task", "Invoice", "Payment",
     "Category", "Blog", "Comment", "Service", "Industry", "Technology", "CaseStudy",
     "Portfolio", "Testimonial", "Partner", "Award", "Faq", "Gallery", "Download",
     "Career", "Application", "Event",
@@ -76,5 +79,5 @@ __all__ = [
     "Course", "TrainingEnrollment",
     "PerformanceReview",
     "NewsletterSubscriber",
-    "SeoMetadata", "PageContent", "PageView",
+    "SeoMetadata", "PageContent", "PageView", "Report",
 ]

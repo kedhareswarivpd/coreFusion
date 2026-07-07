@@ -123,6 +123,108 @@ export async function createTicket(userId, subject, description) {
   };
 }
 
+export async function fetchClientPayments(userId) {
+  const { data: client, error: ce } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+  if (ce) throw ce;
+
+  const { data, error } = await supabase
+    .from('payments')
+    .select('id, amount, method, transaction_ref, paid_at, status, invoice:invoices(invoice_number)')
+    .eq('invoices.client_id', client.id)
+    .is('deleted_at', null)
+    .order('paid_at', { ascending: false });
+  if (error) throw error;
+  return data.map((p) => ({
+    id: p.id,
+    invoice: p.invoice?.invoice_number || '—',
+    amount: Number(p.amount),
+    method: p.method.replace('_', ' '),
+    date: p.paid_at?.slice(0, 10),
+    status: p.status,
+  }));
+}
+
+export async function fetchClientMeetings(userId) {
+  const { data: client, error: ce } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+  if (ce) throw ce;
+
+  const { data, error } = await supabase
+    .from('meetings')
+    .select('id, title, scheduled_at, duration_minutes, meeting_link, status, agenda')
+    .eq('client_id', client.id)
+    .is('deleted_at', null)
+    .order('scheduled_at', { ascending: false });
+  if (error) throw error;
+  return data.map((m) => ({
+    id: m.id,
+    title: m.title,
+    date: m.scheduled_at?.slice(0, 10),
+    time: m.scheduled_at ? new Date(m.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—',
+    duration: `${m.duration_minutes} min`,
+    type: m.meeting_link ? 'Video Call' : 'On-site',
+    attendees: [],
+    status: m.status === 'scheduled' ? 'upcoming' : m.status,
+  }));
+}
+
+export async function fetchClientFiles(userId) {
+  const { data: client, error: ce } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+  if (ce) throw ce;
+
+  const { data, error } = await supabase
+    .from('client_files')
+    .select('id, name, category, file_url, size_bytes, uploaded_by, created_at')
+    .eq('client_id', client.id)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data.map((f) => ({
+    id: f.id,
+    name: f.name,
+    category: f.category,
+    size: f.size_bytes ? `${(f.size_bytes / 1024).toFixed(0)} KB` : '—',
+    uploadedOn: f.created_at?.slice(0, 10),
+    uploadedBy: f.uploaded_by || 'CoreFusion Team',
+  }));
+}
+
+export async function fetchClientReports(userId) {
+  const { data: client, error: ce } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+  if (ce) throw ce;
+
+  const { data, error } = await supabase
+    .from('client_reports')
+    .select('id, title, report_type, period, file_url, size_bytes, created_at')
+    .eq('client_id', client.id)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data.map((r) => ({
+    id: r.id,
+    title: r.title,
+    type: r.report_type,
+    period: r.period,
+    generatedOn: r.created_at?.slice(0, 10),
+    size: r.size_bytes ? `${(r.size_bytes / 1024).toFixed(0)} KB` : '—',
+  }));
+}
+
 // ─── EMPLOYEE PORTAL ──────────────────────────────────────────────────────────
 
 export async function fetchEmployeeProfile(userId) {

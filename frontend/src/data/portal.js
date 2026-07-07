@@ -2,7 +2,11 @@ export const clientPortalTabs = [
   { id: 'overview', label: 'Overview', icon: 'dashboard' },
   { id: 'projects', label: 'Projects', icon: 'folder' },
   { id: 'invoices', label: 'Invoices', icon: 'receipt' },
-  { id: 'tickets', label: 'Support Tickets', icon: 'support' },
+  { id: 'payments', label: 'Payments', icon: 'payments' },
+  { id: 'files', label: 'Files', icon: 'folder_open' },
+  { id: 'meetings', label: 'Meetings', icon: 'video_call' },
+  { id: 'reports', label: 'Reports', icon: 'bar_chart' },
+  { id: 'tickets', label: 'Support', icon: 'support' },
 ];
 
 export const employeePortalTabs = [
@@ -19,11 +23,19 @@ export const employeePortalTabs = [
 ];
 
 export const adminPanelTabs = [
-  { id: 'overview', label: 'Dashboard', icon: 'dashboard' },
-  { id: 'content', label: 'Content', icon: 'article' },
-  { id: 'users', label: 'Users', icon: 'people' },
-  { id: 'employees', label: 'Employees', icon: 'badge' },
-  { id: 'clients', label: 'Clients', icon: 'business' },
+  { id: 'overview',       label: 'Dashboard',    icon: 'dashboard' },
+  { id: 'content',        label: 'Content',       icon: 'article' },
+  { id: 'projects',       label: 'Projects',      icon: 'folder' },
+  { id: 'users',          label: 'Users',         icon: 'people' },
+  { id: 'employees',      label: 'Employees',     icon: 'badge' },
+  { id: 'clients',        label: 'Clients',       icon: 'business' },
+  { id: 'roles',          label: 'Roles',         icon: 'verified_user' },
+  { id: 'analytics',      label: 'Analytics',     icon: 'bar_chart' },
+  { id: 'media',          label: 'Media',         icon: 'perm_media' },
+  { id: 'notifications',  label: 'Notifications', icon: 'notifications' },
+  { id: 'reports',        label: 'Reports',       icon: 'assessment' },
+  { id: 'settings',       label: 'Settings',      icon: 'settings' },
+  { id: 'logs',           label: 'Audit Logs',    icon: 'history' },
 ];
 
 export const demoClientProfile = {
@@ -127,6 +139,35 @@ export const demoDashboard = {
   unresolved_contacts: 12,
   published_blogs: 89,
 };
+
+export const demoClientPayments = [
+  { id: 'PAY-001', invoice: 'INV-001', amount: 120000, method: 'Bank Transfer', date: '2026-06-28', status: 'completed' },
+  { id: 'PAY-002', invoice: 'INV-003', amount: 100000, method: 'Wire Transfer', date: '2026-06-10', status: 'completed' },
+  { id: 'PAY-003', invoice: 'INV-002', amount: 85000, method: 'Bank Transfer', date: '2026-07-20', status: 'pending' },
+];
+
+export const demoClientFiles = [
+  { id: 'FILE-001', name: 'Project Proposal — Core Banking.pdf', category: 'Proposal', size: '1.2 MB', uploadedOn: '2026-01-15', uploadedBy: 'CoreFusion Team' },
+  { id: 'FILE-002', name: 'SRS Document v2.1.pdf', category: 'Specification', size: '3.4 MB', uploadedOn: '2026-02-20', uploadedBy: 'CoreFusion Team' },
+  { id: 'FILE-003', name: 'Q2 Progress Report.pdf', category: 'Report', size: '890 KB', uploadedOn: '2026-07-01', uploadedBy: 'CoreFusion Team' },
+  { id: 'FILE-004', name: 'NDA — Acme Corp.pdf', category: 'Legal', size: '210 KB', uploadedOn: '2025-12-10', uploadedBy: 'Legal Dept' },
+  { id: 'FILE-005', name: 'API Integration Guide.pdf', category: 'Technical', size: '2.1 MB', uploadedOn: '2026-04-05', uploadedBy: 'CoreFusion Team' },
+];
+
+export const demoClientMeetings = [
+  { id: 'MTG-001', title: 'Q3 Project Review', date: '2026-07-15', time: '10:00 AM', duration: '1 hr', type: 'Video Call', attendees: ['John Smith', 'Sarah Lee', 'Dev Team'], status: 'upcoming' },
+  { id: 'MTG-002', title: 'Payment Reconciliation', date: '2026-07-22', time: '2:00 PM', duration: '30 min', type: 'Video Call', attendees: ['John Smith', 'Finance Team'], status: 'upcoming' },
+  { id: 'MTG-003', title: 'Sprint 8 Kickoff', date: '2026-07-01', time: '9:00 AM', duration: '1 hr', type: 'Video Call', attendees: ['John Smith', 'Dev Team'], status: 'completed' },
+  { id: 'MTG-004', title: 'Requirements Gathering', date: '2026-06-10', time: '11:00 AM', duration: '2 hrs', type: 'On-site', attendees: ['John Smith', 'Jane Doe', 'BA Team'], status: 'completed' },
+];
+
+export const demoClientReports = [
+  { id: 'RPT-001', title: 'Q2 2026 Project Status Report', type: 'Project', period: 'Q2 2026', generatedOn: '2026-07-01', size: '1.8 MB' },
+  { id: 'RPT-002', title: 'Q2 2026 Financial Summary', type: 'Financial', period: 'Q2 2026', generatedOn: '2026-07-01', size: '950 KB' },
+  { id: 'RPT-003', title: 'Q1 2026 Project Status Report', type: 'Project', period: 'Q1 2026', generatedOn: '2026-04-02', size: '1.5 MB' },
+  { id: 'RPT-004', title: 'Q1 2026 Financial Summary', type: 'Financial', period: 'Q1 2026', generatedOn: '2026-04-02', size: '870 KB' },
+  { id: 'RPT-005', title: 'Annual Report 2025', type: 'Annual', period: 'FY 2025', generatedOn: '2026-01-15', size: '4.2 MB' },
+];
 
 export const demoProjectStatusBreakdown = [
   { status: 'planning', count: 15 },

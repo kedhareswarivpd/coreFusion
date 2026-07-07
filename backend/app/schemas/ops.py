@@ -41,6 +41,7 @@ class TicketReplyOut(TimestampedRead):
 # ---------- Meeting ----------
 class MeetingCreate(BaseModel):
     project_id: uuid.UUID | None = None
+    client_id: uuid.UUID | None = None
     title: str
     agenda: str | None = None
     scheduled_at: datetime
@@ -57,6 +58,7 @@ class MeetingUpdate(BaseModel):
 
 class MeetingOut(TimestampedRead):
     project_id: uuid.UUID | None = None
+    client_id: uuid.UUID | None = None
     title: str
     agenda: str | None = None
     scheduled_at: datetime

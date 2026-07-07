@@ -23,3 +23,6 @@ class Client(Base):
     invoices = relationship("Invoice", back_populates="client")
     tickets = relationship("Ticket", back_populates="client")
     testimonials = relationship("Testimonial", back_populates="client")
+    meetings = relationship("Meeting", back_populates="client")
+    files = relationship("ClientFile", back_populates="client")
+    reports = relationship("ClientReport", back_populates="client")

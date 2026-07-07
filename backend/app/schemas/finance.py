@@ -54,3 +54,48 @@ class PaymentOut(TimestampedRead):
     transaction_ref: str | None = None
     paid_at: datetime
     status: PaymentStatus
+
+
+class ClientPaymentOut(TimestampedRead):
+    """Payment enriched with invoice_number for the client portal."""
+    invoice_id: uuid.UUID
+    invoice_number: str | None = None
+    amount: float
+    method: PaymentMethod
+    transaction_ref: str | None = None
+    paid_at: datetime
+    status: PaymentStatus
+
+
+class ClientFileCreate(BaseModel):
+    name: str
+    category: str
+    file_url: str
+    size_bytes: int | None = None
+    uploaded_by: str | None = None
+
+
+class ClientFileOut(TimestampedRead):
+    client_id: uuid.UUID
+    name: str
+    category: str
+    file_url: str
+    size_bytes: int | None = None
+    uploaded_by: str | None = None
+
+
+class ClientReportCreate(BaseModel):
+    title: str
+    report_type: str
+    period: str
+    file_url: str | None = None
+    size_bytes: int | None = None
+
+
+class ClientReportOut(TimestampedRead):
+    client_id: uuid.UUID
+    title: str
+    report_type: str
+    period: str
+    file_url: str | None = None
+    size_bytes: int | None = None

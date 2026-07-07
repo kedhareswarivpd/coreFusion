@@ -8,13 +8,15 @@ import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { clientPortalTabs, demoClientProfile, demoClientProjects, demoClientInvoices, demoClientTickets } from '../data/portal.js';
-import { fetchClientProfile, fetchClientProjects, fetchClientInvoices, fetchClientTickets, createTicket } from '../lib/db.js';
+import { clientPortalTabs, demoClientProfile, demoClientProjects, demoClientInvoices, demoClientTickets, demoClientPayments, demoClientFiles, demoClientMeetings, demoClientReports } from '../data/portal.js';
+import { fetchClientProfile, fetchClientProjects, fetchClientInvoices, fetchClientTickets, createTicket, fetchClientPayments, fetchClientMeetings, fetchClientFiles, fetchClientReports } from '../lib/db.js';
 
 const STATUS_VARIANTS = {
   in_progress: 'info', completed: 'success', planning: 'warning', on_hold: 'neutral',
   paid: 'success', pending: 'warning', overdue: 'error', sent: 'info', draft: 'neutral',
   open: 'info', resolved: 'success', closed: 'neutral', cancelled: 'error',
+  completed: 'success', upcoming: 'info',
+  project: 'info', financial: 'warning', annual: 'neutral',
 };
 
 function Overview({ profile, projects, invoices, tickets }) {
@@ -187,6 +189,146 @@ function Tickets({ tickets, onNewTicket }) {
   );
 }
 
+function Payments({ payments }) {
+  return (
+    <div className="bg-white dark:bg-dark-surface border border-outline-variant dark:border-dark-outline-variant rounded-lg overflow-hidden">
+      {payments.length === 0
+        ? <div className="p-stack-lg"><EmptyState icon="payments" title="No payments yet" description="Your payment history will appear here." /></div>
+        : (
+          <table className="w-full text-left">
+            <thead className="bg-surface-container dark:bg-dark-surface-container font-label-caps text-label-caps uppercase text-ink-muted">
+              <tr>
+                <th className="px-stack-lg py-4">Payment ID</th>
+                <th className="px-stack-lg py-4">Invoice</th>
+                <th className="px-stack-lg py-4">Amount</th>
+                <th className="px-stack-lg py-4">Method</th>
+                <th className="px-stack-lg py-4">Date</th>
+                <th className="px-stack-lg py-4">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant dark:divide-dark-outline-variant">
+              {payments.map((p) => (
+                <tr key={p.id} className="hover:bg-surface-low dark:hover:bg-dark-surface-low transition-colors">
+                  <td className="px-stack-lg py-4 font-label-caps text-label-caps text-brand">{p.id}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{p.invoice}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-brand-dark dark:text-dark-brand">${p.amount.toLocaleString()}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{p.method}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{p.date}</td>
+                  <td className="px-stack-lg py-4"><StatusBadge variant={STATUS_VARIANTS[p.status] || 'neutral'}>{p.status}</StatusBadge></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+    </div>
+  );
+}
+
+function Files({ files }) {
+  return (
+    <div className="bg-white dark:bg-dark-surface border border-outline-variant dark:border-dark-outline-variant rounded-lg overflow-hidden">
+      {files.length === 0
+        ? <div className="p-stack-lg"><EmptyState icon="folder_open" title="No files yet" description="Shared files will appear here." /></div>
+        : (
+          <table className="w-full text-left">
+            <thead className="bg-surface-container dark:bg-dark-surface-container font-label-caps text-label-caps uppercase text-ink-muted">
+              <tr>
+                <th className="px-stack-lg py-4">Name</th>
+                <th className="px-stack-lg py-4">Category</th>
+                <th className="px-stack-lg py-4">Size</th>
+                <th className="px-stack-lg py-4">Uploaded</th>
+                <th className="px-stack-lg py-4">By</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant dark:divide-dark-outline-variant">
+              {files.map((f) => (
+                <tr key={f.id} className="hover:bg-surface-low dark:hover:bg-dark-surface-low transition-colors">
+                  <td className="px-stack-lg py-4">
+                    <div className="flex items-center gap-2">
+                      <Icon name="description" className="text-brand text-lg" />
+                      <span className="text-body-md text-brand-dark dark:text-dark-brand">{f.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-stack-lg py-4"><Badge className="text-label-caps">{f.category}</Badge></td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{f.size}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{f.uploadedOn}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{f.uploadedBy}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+    </div>
+  );
+}
+
+function Meetings({ meetings }) {
+  return (
+    <div className="space-y-stack-md">
+      {meetings.length === 0 && <EmptyState icon="video_call" title="No meetings scheduled" description="Upcoming meetings will appear here." />}
+      {meetings.map((m) => (
+        <div key={m.id} className="bg-white dark:bg-dark-surface border border-outline-variant dark:border-dark-outline-variant rounded-lg p-stack-lg">
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex items-center gap-3">
+              <Icon name="video_call" className="text-brand text-2xl" />
+              <h3 className="font-display text-headline-sm text-brand-dark dark:text-dark-brand">{m.title}</h3>
+            </div>
+            <StatusBadge variant={STATUS_VARIANTS[m.status] || 'neutral'}>{m.status}</StatusBadge>
+          </div>
+          <div className="grid sm:grid-cols-4 gap-4 text-body-sm text-ink-muted">
+            <div><span className="font-label-caps text-label-caps block">Date</span>{m.date}</div>
+            <div><span className="font-label-caps text-label-caps block">Time</span>{m.time}</div>
+            <div><span className="font-label-caps text-label-caps block">Duration</span>{m.duration}</div>
+            <div><span className="font-label-caps text-label-caps block">Type</span>{m.type}</div>
+          </div>
+          <div className="mt-3">
+            <span className="font-label-caps text-label-caps text-ink-muted">Attendees: </span>
+            <span className="text-body-sm text-ink-muted">{m.attendees.join(', ')}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Reports({ reports }) {
+  return (
+    <div className="bg-white dark:bg-dark-surface border border-outline-variant dark:border-dark-outline-variant rounded-lg overflow-hidden">
+      {reports.length === 0
+        ? <div className="p-stack-lg"><EmptyState icon="bar_chart" title="No reports yet" description="Generated reports will appear here." /></div>
+        : (
+          <table className="w-full text-left">
+            <thead className="bg-surface-container dark:bg-dark-surface-container font-label-caps text-label-caps uppercase text-ink-muted">
+              <tr>
+                <th className="px-stack-lg py-4">Report</th>
+                <th className="px-stack-lg py-4">Type</th>
+                <th className="px-stack-lg py-4">Period</th>
+                <th className="px-stack-lg py-4">Generated</th>
+                <th className="px-stack-lg py-4">Size</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant dark:divide-dark-outline-variant">
+              {reports.map((r) => (
+                <tr key={r.id} className="hover:bg-surface-low dark:hover:bg-dark-surface-low transition-colors">
+                  <td className="px-stack-lg py-4">
+                    <div className="flex items-center gap-2">
+                      <Icon name="bar_chart" className="text-brand text-lg" />
+                      <span className="text-body-md text-brand-dark dark:text-dark-brand">{r.title}</span>
+                    </div>
+                  </td>
+                  <td className="px-stack-lg py-4"><Badge className="text-label-caps">{r.type}</Badge></td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{r.period}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{r.generatedOn}</td>
+                  <td className="px-stack-lg py-4 text-body-md text-ink-muted">{r.size}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+    </div>
+  );
+}
+
 function LoginGate({ onSuccess }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
@@ -260,6 +402,10 @@ export default function ClientPortal() {
   const [projects, setProjects] = useState(demoClientProjects);
   const [invoices, setInvoices] = useState(demoClientInvoices);
   const [tickets, setTickets] = useState(demoClientTickets);
+  const [payments, setPayments] = useState(demoClientPayments);
+  const [files, setFiles] = useState(demoClientFiles);
+  const [meetings, setMeetings] = useState(demoClientMeetings);
+  const [reports, setReports] = useState(demoClientReports);
 
   useEffect(() => {
     if (!clientAuthed || !user) { setLoading(false); return; }
@@ -269,11 +415,19 @@ export default function ClientPortal() {
       fetchClientProjects(user.id),
       fetchClientInvoices(user.id),
       fetchClientTickets(user.id),
-    ]).then(([p, pr, inv, t]) => {
+      fetchClientPayments(user.id),
+      fetchClientMeetings(user.id),
+      fetchClientFiles(user.id),
+      fetchClientReports(user.id),
+    ]).then(([p, pr, inv, t, pay, mtg, fil, rep]) => {
       if (p.status === 'fulfilled') setProfile(p.value);
       if (pr.status === 'fulfilled') setProjects(pr.value);
       if (inv.status === 'fulfilled') setInvoices(inv.value);
       if (t.status === 'fulfilled') setTickets(t.value);
+      if (pay.status === 'fulfilled') setPayments(pay.value);
+      if (mtg.status === 'fulfilled') setMeetings(mtg.value);
+      if (fil.status === 'fulfilled') setFiles(fil.value);
+      if (rep.status === 'fulfilled') setReports(rep.value);
     }).finally(() => setLoading(false));
   }, [clientAuthed, user]);
 
@@ -317,6 +471,10 @@ export default function ClientPortal() {
         {activeTab === 'overview' && <Overview profile={profile} projects={projects} invoices={invoices} tickets={tickets} />}
         {activeTab === 'projects' && <Projects projects={projects} />}
         {activeTab === 'invoices' && <Invoices invoices={invoices} />}
+        {activeTab === 'payments' && <Payments payments={payments} />}
+        {activeTab === 'files' && <Files files={files} />}
+        {activeTab === 'meetings' && <Meetings meetings={meetings} />}
+        {activeTab === 'reports' && <Reports reports={reports} />}
         {activeTab === 'tickets' && <Tickets tickets={tickets} onNewTicket={handleNewTicket} />}
       </div>
     </div>

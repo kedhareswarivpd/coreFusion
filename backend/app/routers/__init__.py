@@ -4,7 +4,7 @@ from app.routers import (
     audit_log, auth, award, blog, career, case_study, category, clients,
     contact, dashboard, download, employees, event, faq, finance, gallery,
     gdpr, industry, media, meeting, notification, partner, portfolio, projects,
-    role, service, setting, stats, task, technology, testimonial, ticket, users,
+    reports, role, service, setting, stats, task, technology, testimonial, ticket, users,
     # Phase 2
     analytics, newsletter, page_content, performance_review, product,
     resource, seo, solution, training,
@@ -57,3 +57,4 @@ api_router.include_router(newsletter.router)
 api_router.include_router(seo.router)
 api_router.include_router(page_content.router)
 api_router.include_router(analytics.router)
+api_router.include_router(reports.router)

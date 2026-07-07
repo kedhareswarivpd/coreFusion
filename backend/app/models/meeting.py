@@ -13,6 +13,7 @@ class Meeting(Base):
     __tablename__ = "meetings"
 
     project_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id"))
+    client_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("clients.id"))
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     agenda: Mapped[str | None] = mapped_column(Text)
     scheduled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -23,4 +24,5 @@ class Meeting(Base):
     notes: Mapped[str | None] = mapped_column(Text)
 
     project = relationship("Project", back_populates="meetings")
+    client = relationship("Client", back_populates="meetings")
     organizer = relationship("User")

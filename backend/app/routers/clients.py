@@ -11,15 +11,18 @@ from app.core.dependencies import get_current_user, require_roles
 from app.core.errors import ApiError
 from app.crud.base import CRUDBase
 from app.models.client import Client
+from app.models.client_file import ClientFile
+from app.models.client_report import ClientReport
 from app.models.invoice import Invoice
+from app.models.meeting import Meeting
 from app.models.payment import Payment
 from app.models.project import Project
 from app.models.ticket import Ticket
 from app.models.ticket_reply import TicketReply
 from app.models.user import User
 from app.schemas.client import ClientCreate, ClientOut, ClientUpdate, TicketCreate
-from app.schemas.finance import InvoiceOut
-from app.schemas.ops import TicketOut
+from app.schemas.finance import ClientFileCreate, ClientFileOut, ClientPaymentOut, ClientReportCreate, ClientReportOut, InvoiceOut
+from app.schemas.ops import MeetingOut, TicketOut
 from app.schemas.project import ProjectOut
 from app.utils.pagination import PageParams, page_params
 from app.utils.responses import build_pagination_meta, success_response
@@ -75,6 +78,69 @@ async def create_ticket(payload: TicketCreate, db: AsyncSession = Depends(get_db
     await db.commit()
     await db.refresh(ticket)
     return success_response(data=TicketOut.model_validate(ticket), message="Support ticket created", status_code=201)
+
+
+@router.get("/me/payments", response_model=dict)
+async def my_payments(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    client = await _get_client_for_user(db, current_user)
+    result = await db.execute(
+        select(Payment, Invoice.invoice_number)
+        .join(Invoice, Payment.invoice_id == Invoice.id)
+        .where(Invoice.client_id == client.id)
+        .order_by(Payment.paid_at.desc())
+    )
+    rows = result.all()
+    out = []
+    for payment, invoice_number in rows:
+        item = ClientPaymentOut.model_validate(payment)
+        item.invoice_number = invoice_number
+        out.append(item)
+    return success_response(data=out)
+
+
+@router.get("/me/meetings", response_model=dict)
+async def my_meetings(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    client = await _get_client_for_user(db, current_user)
+    result = await db.execute(
+        select(Meeting).where(Meeting.client_id == client.id).order_by(Meeting.scheduled_at.desc())
+    )
+    return success_response(data=[MeetingOut.model_validate(m) for m in result.scalars().all()])
+
+
+@router.get("/me/files", response_model=dict)
+async def my_files(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    client = await _get_client_for_user(db, current_user)
+    result = await db.execute(
+        select(ClientFile).where(ClientFile.client_id == client.id).order_by(ClientFile.created_at.desc())
+    )
+    return success_response(data=[ClientFileOut.model_validate(f) for f in result.scalars().all()])
+
+
+@router.post("/me/files", response_model=dict, status_code=201, dependencies=[Depends(require_roles("admin", "project_manager"))])
+async def upload_client_file(client_id: uuid.UUID, payload: ClientFileCreate, db: AsyncSession = Depends(get_db)):
+    f = ClientFile(**payload.model_dump(), client_id=client_id)
+    db.add(f)
+    await db.commit()
+    await db.refresh(f)
+    return success_response(data=ClientFileOut.model_validate(f), message="File uploaded", status_code=201)
+
+
+@router.get("/me/reports", response_model=dict)
+async def my_reports(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    client = await _get_client_for_user(db, current_user)
+    result = await db.execute(
+        select(ClientReport).where(ClientReport.client_id == client.id).order_by(ClientReport.created_at.desc())
+    )
+    return success_response(data=[ClientReportOut.model_validate(r) for r in result.scalars().all()])
+
+
+@router.post("/me/reports", response_model=dict, status_code=201, dependencies=[Depends(require_roles("admin", "finance"))])
+async def create_client_report(client_id: uuid.UUID, payload: ClientReportCreate, db: AsyncSession = Depends(get_db)):
+    r = ClientReport(**payload.model_dump(), client_id=client_id)
+    db.add(r)
+    await db.commit()
+    await db.refresh(r)
+    return success_response(data=ClientReportOut.model_validate(r), message="Report created", status_code=201)
 
 
 # ---------- Admin / Sales management ----------
