@@ -15,7 +15,7 @@ return (
         playsInline
         preload="metadata"
         className="absolute inset-0 w-full h-full object-cover"
-        src={`${import.meta.env.BASE_URL}hero-video.mp4`}
+        src='/hero-video.mp4'
       />
 
       {/* Dark gradient overlay */}
